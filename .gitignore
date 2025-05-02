@@ -1,6 +1,8 @@
+# SPDX-License-Identifier: CC0-1.0
+
 .gradle
 build/
-!gradle/wrapper/gradle-wrapper.jar
+#!gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
 
@@ -45,4 +47,3 @@ bin/
 
 ### Secrets ###
 **/application-secret.yml
-config/application.yml

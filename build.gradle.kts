@@ -1,69 +1,72 @@
-/*
- * // SPDX-FileCopyrightText: 2024 Deutsche Telekom AG
- * //
- * // SPDX-License-Identifier: Apache-2.0
- */
-import arc.ArcChatTask
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import java.lang.System.getenv
-import java.net.URI
+// 
+//
+// SPDX-License-Identifier: Apache-2.0
 
 plugins {
-    kotlin("jvm") version "1.9.23"
-    kotlin("plugin.serialization") version "1.9.23"
-    kotlin("plugin.spring") version "1.9.23"
-    id("org.springframework.boot") version "3.2.4"
-    id("io.spring.dependency-management") version "1.1.4"
+    kotlin("jvm") version "2.1.10"
+    kotlin("plugin.serialization") version "2.1.10"
+    kotlin("plugin.spring") version "2.1.10"
+    id("org.springframework.boot") version "3.4.3"
+    id("io.spring.dependency-management") version "1.1.7"
+    id("org.graalvm.buildtools.native") version "0.10.2"
 }
+
+group = "org.eclipse.lmos.app"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs += "-Xjsr305=strict"
-        freeCompilerArgs += "-Xcontext-receivers"
-        jvmTarget = "17"
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.addAll("-Xjsr305=strict", "-Xcontext-receivers")
     }
 }
 
 dependencies {
-    val arcVersion = "0.18.0"
-    kotlinScriptDef("io.github.lmos-ai.arc:arc-scripting:$arcVersion")
-    implementation("io.github.lmos-ai.arc:arc-scripting:$arcVersion")
-    implementation("io.github.lmos-ai.arc:arc-azure-client:$arcVersion")
-    implementation("io.github.lmos-ai.arc:arc-ollama-client:$arcVersion")
-    implementation("io.github.lmos-ai.arc:arc-gemini-client:$arcVersion")
-    implementation("io.github.lmos-ai.arc:arc-spring-boot-starter:$arcVersion")
-    implementation("io.github.lmos-ai.arc:arc-reader-pdf:$arcVersion")
-    implementation("io.github.lmos-ai.arc:arc-reader-html:$arcVersion")
+    val arcVersion = "0.124.0"
+    val langchain4jVersion = "0.36.2"
 
-    val kotlinXVersion = "1.8.0"
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:$kotlinXVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$kotlinXVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$kotlinXVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+    // Arc
+    implementation("org.eclipse.lmos:arc-azure-client:$arcVersion")
+    implementation("org.eclipse.lmos:arc-spring-boot-starter:$arcVersion")
+    implementation("org.eclipse.lmos:arc-assistants:$arcVersion")
+    implementation("org.eclipse.lmos:arc-readers:$arcVersion")
+    implementation("org.eclipse.lmos:arc-api:$arcVersion")
+    implementation("org.eclipse.lmos:arc-graphql-spring-boot-starter:$arcVersion")
+    implementation("org.eclipse.lmos:arc-view-spring-boot-starter:$arcVersion")
+
+    // Tracing
+    implementation(platform("io.micrometer:micrometer-tracing-bom:1.4.5"))
+    implementation("io.micrometer:micrometer-tracing")
+    implementation("io.opentelemetry:opentelemetry-exporter-otlp")
+    implementation("io.micrometer:micrometer-tracing-bridge-otel")
+
+    // Azure
+    implementation("com.azure:azure-identity:1.15.4")
 
     // Spring Boot
-    implementation("org.springframework.boot:spring-boot-starter")
-    implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+
+    // Langchain4j
+    implementation("dev.langchain4j:langchain4j-bedrock:$langchain4jVersion")
+    implementation("dev.langchain4j:langchain4j-google-ai-gemini:$langchain4jVersion")
+    implementation("dev.langchain4j:langchain4j-ollama:$langchain4jVersion")
+    implementation("dev.langchain4j:langchain4j-open-ai:$langchain4jVersion")
+
+    // Metrics
+    implementation("io.micrometer:micrometer-registry-prometheus")
+
+    // Test
+    testImplementation("org.springframework.boot:spring-boot-testcontainers")
+    testImplementation("org.testcontainers:mongodb:1.20.6")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
 repositories {
     mavenLocal()
     mavenCentral()
-    maven {
-        name = "github"
-        url = URI("https://maven.pkg.github.com/lmos-ai/arc")
-        credentials {
-            username = findProperty("GITHUB_USER")?.toString() ?: getenv("GITHUB_USER")
-            password = findProperty("GITHUB_TOKEN")?.toString() ?: getenv("GITHUB_TOKEN")
-        }
-    }
-}
-
-tasks.register<ArcChatTask>("arc") {
-    agent = findProperty("agent")?.toString() ?: error("The property 'agent' is missing!")
+    maven(url = "https://oss.sonatype.org/content/repositories/snapshots/")
 }

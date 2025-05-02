@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: CC0-1.0
+
+arc:
+  ai:
+    clients:
+      - id: GPT-4o
+        model-name: gpt-4o
+        api-key: null
+        client: openai
