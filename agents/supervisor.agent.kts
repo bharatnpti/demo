@@ -2,9 +2,7 @@
 agent {
     name = "supervisor-agent"
     model { "GPT-4o" }
-    tools {
-        +"call_agent"
-    }
+    tools = AllTools
     prompt {
         """
         ## Goal
