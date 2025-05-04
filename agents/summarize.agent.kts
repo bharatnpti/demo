@@ -8,17 +8,7 @@ agent {
        Keep your answer short and concise.
      """
     }
-    filterInput {
-        val url = extractUrl(inputMessage).firstOrNull()
-        if (url != null) {
-            debug("Loading url: $url")
-            val html = html(url).getOrThrow()
-            inputMessage = inputMessage.update("""
-                User question: ${inputMessage.content}
-                The webpage $url contains the following text:
-                $html
-             """
-            )
-        }
+    tools {
+        +"get_web_content"
     }
 }

@@ -25,6 +25,9 @@ agent {
          
         - Name: password-agent
           Details: Helpful for email account access related issues
+         
+        - Name: summarizer-agent
+          Details: Summarize any given text
         """
     }
 }

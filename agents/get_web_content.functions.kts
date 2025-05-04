@@ -9,5 +9,10 @@ function(
         string("url", "The URL of the content to fetch.")
     )
 ) { (url) ->
-   httpGet(url.toString())
+    if (url.toString().endsWith(".pdf")) {
+        pdf(url.toString()).getOrThrow()
+    } else {
+        html(url.toString()).getOrThrow()
+    }
+
 }
