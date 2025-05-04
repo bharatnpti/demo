@@ -1,7 +1,3 @@
-// 
-//
-// SPDX-License-Identifier: Apache-2.0
-
 function(
     name = "get_web_content",
     description = "Returns content from the web.",
