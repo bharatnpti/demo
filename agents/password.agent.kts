@@ -23,7 +23,5 @@ agent {
        
      """
     }
-    tools {
-        +"get_web_content"
-    }
+    tools = AllTools
 }
